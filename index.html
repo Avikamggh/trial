@@ -13,21 +13,21 @@
             box-sizing: border-box;
         }
 
-        :root {
-            --primary-cyan: #00ffff;
-            --primary-blue: #0080ff;
-            --secondary-purple: #8b5cf6;
-            --accent-pink: #ec4899;
-            --dark-bg: #0a0a0f;
-            --darker-bg: #06060a;
-            --card-bg: rgba(15, 15, 35, 0.9);
-            --border-glow: rgba(0, 255, 255, 0.3);
-            --text-primary: #ffffff;
-            --text-secondary: #a0a0a0;
-            --success-green: #10b981;
-            --warning-orange: #f59e0b;
-            --voice-active: #ff6b6b;
-        }
+       :root {
+    --primary-cyan: #00bcd4;        /* Light cyan from image */
+    --primary-blue: #3f51b5;        /* Dark purple from image */
+    --secondary-purple: #3f51b5;    /* Adjusted to dark purple */
+    --accent-pink: #ec4899;
+    --dark-bg: #0a0a0f;
+    --darker-bg: #06060a;
+    --card-bg: rgba(15, 15, 35, 0.9);
+    --border-glow: rgba(0, 255, 255, 0.3);
+    --text-primary: #ffffff;
+    --text-secondary: #a0a0a0;
+    --success-green: #10b981;
+    --warning-orange: #f59e0b;
+    --voice-active: #ff6b6b;
+}
 
         body {
             font-family: 'Inter', sans-serif;
@@ -133,7 +133,7 @@
             width: 70px;
             height: 70px;
             border-radius: 50%;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+           background: linear-gradient(135deg, #00bcd4 0%, #3f51b5 100%);
             border: 3px solid rgba(255, 255, 255, 0.1);
             cursor: pointer;
             box-shadow: 0 8px 32px rgba(102, 126, 234, 0.3);
@@ -170,7 +170,7 @@
             right: 0;
             width: 380px;
             height: 580px;
-            background: linear-gradient(135deg, var(--card-bg), rgba(10, 10, 25, 0.95));
+            background: linear-gradient(135deg, #00bcd4 0%, #3f51b5 100%);
             backdrop-filter: blur(20px);
             border-radius: 20px;
             border: 2px solid var(--border-glow);
@@ -190,7 +190,7 @@
         }
 
         .chatbot-header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+           background: linear-gradient(135deg, #00bcd4 0%, #3f51b5 100%);
             padding: 18px;
             color: white;
             display: flex;
@@ -649,6 +649,29 @@
             from { height: 10px; }
             to { height: 20px; }
         }
+.typing-indicator {
+    display: none;
+    padding: 12px 14px;
+    background: transparent;
+    border: none;
+    color: #ffffff;
+    font-size: 16px;
+    font-weight: 600;
+    max-width: 75%;
+    text-align: left;
+    padding-left: 20px;
+}
+.typing-indicator.active {
+    display: block;
+    animation: slideInUp 0.2s ease-out;
+}
+
+.typing-dot {
+    background: #ffffff; /* Make the dots white */
+}
+
+
+
     </style>
 </head>
 <body>
@@ -659,7 +682,7 @@
     <div class="xploreon-chatbot">
         <button class="chatbot-toggle" onclick="toggleChatbot()">
             <div class="notification-badge" id="notificationBadge" style="display: none;">1</div>
-            <div class="humanoid-face">🤖</div>
+            <div class="humanoid-face"><img src="chat.png" alt="Chatbot Logo" style="width: 65%; height: 65%; object-fit: cover;"></div>
         </button>
         
         <div class="chatbot-window" id="chatbotWindow">
@@ -676,11 +699,11 @@
             <div class="chatbot-header">
                 <div class="chatbot-header-content">
                     <div class="chatbot-avatar humanoid-avatar">
-                        <div class="humanoid-face">🤖</div>
+                        <div class="humanoid-face"><img src="chat.png" alt="Chatbot Logo" style="width: 65%; height: 65%; object-fit: cover;"></div>
                     </div>
                     <div>
-                        <h3>XPLOVIS AI</h3>
-                        <div class="chatbot-status">Voice-Enabled Assistant</div>
+                        <h3>XPLOVIS</h3>
+                        <div class="chatbot-status">Xploreon's AI</div>
                     </div>
                 </div>
                 <button class="close-btn" onclick="toggleChatbot()">×</button>
@@ -916,8 +939,63 @@
                         responses: [
                             "🚀 <strong>Rocket propulsion is absolutely fascinating!</strong><br><br><strong>🔥 How Rockets Work:</strong><br>Newton's 3rd Law in action! Hot gases shoot out the bottom at incredible speeds, pushing the rocket upward with tremendous force.<br><br><strong>⚡ Modern Propulsion Types:</strong><br>• <strong>Chemical:</strong> Liquid (RP-1/LOX) & Solid fuel systems<br>• <strong>Electric:</strong> Ion drives using xenon gas<br>• <strong>Nuclear:</strong> Thermal propulsion for deep space<br>• <strong>Future:</strong> Fusion ramjets & solar sails<br><br><strong>🌟 Cool Examples:</strong><br>• SpaceX Raptor: Methane-fueled, 330s efficiency<br>• Falcon 9: Reusable, lands like science fiction<br>• SLS: Most powerful rocket ever built<br><br>At Xploreon, we're developing next-generation propulsion that will make space travel as common as air travel! Want to know about our projects? 🌌"
                         ]
-                    }
-                    // [Include other knowledge items as needed]
+                    },
+                     
+"about_xploreon": {
+    category: "Xploreon Company",
+    responses: [
+        "🚀 <strong>Xploreon</strong> is a pioneering space technology company founded with the vision of making humanity an interplanetary species.<br><br>Our mission focuses on developing innovative technologies for space exploration, including:<br><br>• Advanced propulsion systems<br>• Sustainable space habitats<br>• Mars colonization technologies<br>• The groundbreaking ChronoRider-X1 time research platform<br>• AI-powered mission systems<br><br>Led by visionary founder Avikam Deol, our diverse team of 15+ experts from institutions like IIT is working to bridge the gap between science fiction and reality. We're not just imagining the future—we're building it! 🌌",
+        
+        "✨ <strong>Xploreon: Igniting Humanity's Interplanetary Evolution</strong><br><br>Founded on the principle that space belongs to everyone, Xploreon is developing revolutionary technologies to transform humanity into a spacefaring civilization.<br><br>Our work spans multiple disciplines:<br>• Cutting-edge rocket propulsion<br>• Terraforming biotechnology<br>• Space habitat engineering<br>• Deep space navigation AI<br>• Time manipulation research<br><br>Through our competitions, community events, and educational initiatives, we're building a global community of space enthusiasts while developing the technologies that will define our species' future among the stars! 🛰️"
+    ]
+},
+
+
+// In xploreonKnowledge
+"avikam deol": {
+    category: "Xploreon Team",
+    responses: [
+        "👨‍💼 <strong>Avikam Deol</strong> is the visionary founder and CEO of Xploreon, bringing extraordinary leadership to our mission of making humanity interplanetary.<br><br>With a background in aerospace engineering and a passion for pushing boundaries, Avikam founded Xploreon to bridge the gap between theoretical space exploration and practical implementation.<br><br>His vision for the ChronoRider-X1 time research platform and commitment to developing next-generation propulsion systems has established Xploreon as a pioneer in the new space economy.<br><br>Under his leadership, our team has grown to include top talent from institutions like IIT, unified by the shared goal of expanding human presence beyond Earth. 🌠",
+        
+        "🚀 <strong>Meet Avikam Deol</strong> - the driving force behind Xploreon's mission to revolutionize space exploration.<br><br>As founder and CEO, Avikam combines technical expertise with entrepreneurial vision to lead our diverse team toward breakthrough innovations in:<br>• Time research technology<br>• Mars colonization<br>• Advanced propulsion systems<br>• Space habitat engineering<br><br>His leadership philosophy emphasizes bold thinking, multidisciplinary collaboration, and a deep commitment to making space accessible to all of humanity.<br><br>Through Avikam's guidance, Xploreon continues to push the boundaries of what's possible in space technology! 🌌"
+    ]
+},
+
+
+
+// In xploreonKnowledge
+"whatsapp community": {
+    category: "Xploreon Community",
+    responses: [
+        "💬 <strong>Join Xploreon's WhatsApp Community</strong> to connect with fellow space enthusiasts and stay updated on our latest developments!<br><br>Our active community features:<br><br>• Exclusive updates on Xploreon projects<br>• Space industry news and discussions<br>• Early access to competitions and events<br>• Direct interaction with team members<br>• Educational content about space technology<br><br>To join, simply visit our website at xploreon.space and click on the Contact section and click on social media profiles.<br><br>Become part of a growing network of people passionate about humanity's future in space! 🚀",
+        
+        "🌟 <strong>The Xploreon WhatsApp Community</strong> is your gateway to the exciting world of space exploration and technology!<br><br>When you join our vibrant community, you'll get:<br>• Real-time notifications about Xploreon's latest innovations<br>• Opportunities to participate in exclusive space competitions<br>• A platform to share ideas with like-minded space enthusiasts<br>• Regular educational content about space science<br>• Special announcements about upcoming events<br><br>Joining is easy! Head to xploreon.space/community or message us on Instagram @xploreon to receive an invitation link.<br><br>Don't miss this chance to be part of humanity's journey to the stars! ✨"
+    ]
+},
+
+
+// In xploreonKnowledge
+"aaditya agrawal": {
+    category: "Xploreon Team",
+    responses: [
+        "🎓 <strong>Aaditya Agrawal</strong> serves as Director at Xploreon, bringing exceptional engineering expertise to our leadership team.<br><br>As a Mechanical Engineering graduate from the prestigious IIT Dharwad, Aaditya oversees critical aspects of our hardware development and physical systems engineering.<br><br>His technical background is instrumental in translating theoretical concepts into practical designs for our advanced propulsion systems and space habitat technologies.<br><br>Aaditya's innovative thinking and problem-solving skills make him a key driver behind Xploreon's technical achievements and future roadmap. His leadership helps ensure our ambitious visions are grounded in solid engineering principles! 🚀",
+        
+        "👨‍🔬 <strong>Aaditya Agrawal</strong>, our distinguished Director, combines technical excellence with strategic vision to advance Xploreon's space technologies.<br><br>With his educational foundation from IIT Dharwad in Mechanical Engineering, Aaditya brings valuable expertise to:<br>• Propulsion system design and optimization<br>• Structural engineering for space applications<br>• Thermal management systems<br>• Material science innovations<br><br>His collaborative leadership style fosters innovation across our engineering teams, while his technical insights help solve complex challenges in our most ambitious projects.<br><br>Aaditya's contributions are essential to turning Xploreon's interplanetary vision into engineering reality! 🌟"
+    ]
+},
+
+
+// In xploreonKnowledge
+"team": {
+    category: "Xploreon Team",
+    responses: [
+        "👥 <strong>The Xploreon Team</strong> brings together exceptional talent from diverse backgrounds to pursue our mission of making humanity interplanetary!<br><br>Our incredible team includes:<br><br>• <strong>Avikam Deol</strong> - Founder & CEO<br>• <strong>Aaditya Agrawal</strong> - Director & Mechanical Engineer (IIT Dharwad)<br>• <strong>Prayesi Agarwal</strong> - Chief Innovation Officer<br>• <strong>Omprakash Kumar</strong> - Head of Technology<br>• <strong>Narayan Kataruka</strong> - CAD Designer & Mission Systems<br>• <strong>Rishita Mishra</strong> - Software Engineer & Community Manager<br>• <strong>Hemant Sharma</strong> - Head of AI Research<br>• <strong>Chaitanya Srivastava</strong> - Software Engineer<br><br>Plus aerospace specialists from Silver Oak University and mathematics experts forming a multidisciplinary powerhouse of innovation! 🚀",
+        
+        "✨ <strong>Meet Our Amazing Team</strong> - the diverse group of visionaries, engineers, and scientists making Xploreon's mission possible!<br><br>Leadership & Innovation:<br>• <strong>Avikam Deol</strong> - Founder & CEO<br>• <strong>Aaditya Agrawal</strong> - Director (IIT Dharwad)<br>• <strong>Prayesi Agarwal</strong> - Chief Innovation Officer<br><br>Technology & Engineering:<br>• <strong>Omprakash Kumar</strong> - Technology Head<br>• <strong>Narayan Kataruka</strong> - Mission Systems<br>• <strong>Rishita Mishra</strong> - Software & Community<br><br>Aerospace Division:<br>• <strong>Vishard Makwana</strong>, <strong>Priyansh Patel</strong>, <strong>Harshil Purohit</strong>, and <strong>Neel Ghogil</strong> - Aerospace Engineers from Silver Oak<br><br>Research Division:<br>• <strong>Hemant Sharma</strong> - AI Research Lead<br>• <strong>Chaitanya Srivastava</strong> - Software Engineer<br>• <strong>Utkarsh Tripathi</strong> - Mathematics Specialist<br><br>Together, this cross-disciplinary team combines cutting-edge expertise with boundless creativity to forge humanity's path to the stars! 🌠"
+    ]
+},    
+
+                
                 };
 
                 this.conversationalKnowledge = {
@@ -1116,17 +1194,73 @@
                         responses: [
                             "Great question! 🚀 I'm your comprehensive guide to:<br><br><strong>🏢 Xploreon Everything:</strong><br>• Complete company info, mission, and vision<br>• Our amazing team of 15+ members and their backgrounds<br>• Current projects like ChronoRider-X1 and terraforming<br>• Competitions, community events, and how to join<br>• Contact info and all our social media<br><br><strong>🌌 Universal Knowledge:</strong><br>• Space exploration, rocket science, and astrophysics<br>• AI, machine learning, and programming<br>• Quantum physics, black holes, and exoplanets<br>• Mars colonization and space technology<br>• Climate change, renewable energy, and more<br><br><strong>💬 Natural Conversation:</strong><br>• Friendly chats and casual conversation<br>• Jokes, fun facts, and interesting discussions<br>• Voice input and natural speech responses<br><br>I love having detailed conversations and providing varied, insightful responses! What would you like to explore? ✨"
                         ]
-                    }
-                };
+                    },
+"what is space": {
+        category: "Space Basics",
+        responses: [
+            "Space is the vast, seemingly infinite expanse that exists beyond the Earth's atmosphere. It contains everything in the universe, including stars, planets, and galaxies.",
+            "Space, or outer space, is the region that lies beyond Earth's atmosphere, where there is no air, and where planets, stars, and galaxies exist. It's a place of incredible mystery and scientific exploration."
+        ]
+    }, 
+    "tell me about space": {
+        "category": "Space Basics",
+        "responses": [
+            "Space is a vast and fascinating area of the universe, filled with galaxies, stars, planets, and other celestial bodies. It's an endless expanse that stretches beyond what we can currently observe.",
+            "Outer space is the infinite region that starts at the Earth's atmosphere and extends throughout the universe, containing everything from distant stars to black holes and asteroids."
+        ]
+    }
 
-                this.allKnowledge = {
+                
+};
+
+               
+
+               this.massiveKnowledgeBase = {
+  "black hole": {
+    category: "Astrophysics",
+    responses: [
+      "🚀 Black holes are regions of spacetime with gravity so intense that nothing escapes.",
+      "🧠 Black holes are among the most fascinating objects in space. "
+    ]
+  },
+  "quantum entanglement": {
+    category: "Quantum Physics",
+    responses: [
+      "🔗 Quantum entanglement links particles across vast distances.",
+      "✨ Even galaxies apart, entangled particles remain mysteriously connected."
+    ]
+  },
+  "mars colony": {
+    category: "Space Colonization",
+    responses: [
+      "🏠 Mars colonies aim to create permanent human presence on Mars.",
+      "🔴 Mars colonization is one step closer to becoming interplanetary."
+    ]
+  },
+
+"chronorider-x1": {
+    category: "Xploreon Projects",
+    responses: [
+        "ChronoRider-X1 is Xploreon's groundbreaking time travel research project. 🕰️🌌 The project explores the possibilities of manipulating time through advanced technologies, aiming to unlock the mysteries of time travel. This research could revolutionize how we understand the universe and open new doors for space exploration, allowing humanity to experience and shape the timeline of cosmic events. 🚀✨ Stay tuned as we delve deeper into the science of time!",
+        
+        "ChronoRider-X1 is an ambitious research initiative by Xploreon aimed at exploring the concept of time travel. By combining theoretical physics with advanced engineering, the project is working on technologies that may one day enable us to manipulate and experience time in ways previously thought impossible. This research could pave the way for new space missions, enabling time-based space exploration. ⏳🚀"
+    ]
+},
+
+
+
+ 
+};
+                
+this.allKnowledge = {
                     ...this.xploreonKnowledge,
                     ...this.generalKnowledge,
-                    ...this.conversationalKnowledge
-                };
+                    ...this.conversationalKnowledge,
+                    ...this.massiveKnowledgeBase              
+ };
                 
                 this.fallbackResponses = [
-                    "That's a great question! 🤔 While I might not have specific details on that topic, I'd love to help you explore Xploreon and related areas. I have extensive knowledge about our company, ChronoRider-X1 time travel research, our amazing team, competitions, and much more! What interests you most? 🚀",
+                    "I'm not sure about that one, but I can help you with plenty of other topics related to space, Xploreon, and our exciting projects! 🚀 Feel free to ask anything else, and I'll do my best to assist you! 🌟",
                     "Interesting topic! 🌟 I specialize in Xploreon company information, our space projects, team members, competitions, and general space technology knowledge. Let me suggest some fascinating areas about our mission to make humanity interplanetary! ✨",
                     "Great question! 💫 I'm here to help with anything related to Xploreon's mission, our ChronoRider-X1 project, terraforming research, team profiles, competitions, or general knowledge about space and technology. What would you like to explore? 🎯"
                 ];
@@ -1191,7 +1325,7 @@
                         <div class="quick-action" onclick="sendQuickMessage('Tell me about Xploreon')">🏢 About Xploreon</div>
                         <div class="quick-action" onclick="sendQuickMessage('Meet Avikam Deol')">👨‍💼 Founder</div>
                         <div class="quick-action" onclick="sendQuickMessage('Our amazing team')">👥 Team</div>
-                        <div class="quick-action" onclick="sendQuickMessage('ChronoRider-X1 project')">⏰ Time Travel</div>
+                        <div class="quick-action" onclick="sendQuickMessage('Chronorider-X1')">🕰️ Time Travel</div>
                         <div class="quick-action" onclick="sendQuickMessage('Join WhatsApp community')">💬 Community</div>
                         <div class="quick-action" onclick="sendQuickMessage('Aaditya Agrawal')">🎓 Director</div>
                     </div>
@@ -1250,7 +1384,7 @@
                     'team': ['staff', 'employees', 'members', 'people', 'crew', 'our team', 'team members', 'meet the team', 'amazing team', 'who works at', 'team structure'],
                     
                     // Projects
-                    'chronorider': ['chronorider-x1', 'time travel', 'time travel research', 'chronorider x1', 'time manipulation'],
+                    'chronorider-x1': ['chronorider-x1', 'chronorider','time travel', 'time travel research', 'chronorider x1', 'time manipulation'],
                     'terraforming': ['terraforming research', 'space colonization', 'mars colonization', 'space habitats'],
                     'projects': ['work', 'research', 'development', 'initiatives', 'current projects', 'what are you working on'],
                     
@@ -1283,6 +1417,7 @@
                     'rocket': ['spacecraft', 'launch', 'propulsion', 'missile', 'booster'],
                     'artificial intelligence': ['ai', 'machine learning', 'ml', 'neural networks', 'deep learning'],
                     'space exploration': ['space travel', 'mission', 'astronomy', 'cosmos', 'universe'],
+                    'what is space': ["space", "outer space", "universe", "cosmos"],
                     'python': ['programming', 'coding', 'development', 'script', 'django'],
                     'javascript': ['js', 'web development', 'frontend', 'backend', 'node'],
                     'machine learning': ['ml', 'ai', 'artificial intelligence', 'neural', 'algorithm'],
@@ -1372,7 +1507,7 @@
             if (isUser) {
                 avatarDiv.textContent = '👤';
             } else {
-                avatarDiv.innerHTML = '<div class="humanoid-face">🤖</div>';
+                avatarDiv.innerHTML = '<div class="humanoid-face"><img src="chat.png" alt="Chatbot Logo" style="width: 65%; height: 65%; object-fit: cover;"></div>';
             }
             
             const contentDiv = document.createElement('div');
@@ -1405,52 +1540,57 @@
         }
 
         function showTypingIndicator() {
+            
             document.getElementById('typingIndicator').classList.add('active');
             document.getElementById('chatbotMessages').scrollTop = 999999;
         }
 
         function hideTypingIndicator() {
+       
             document.getElementById('typingIndicator').classList.remove('active');
         }
-
-        async function sendMessage() {
-            const input = document.getElementById('chatbotInput');
-            const button = document.getElementById('sendButton');
-            const message = input.value.trim();
-            
-            if (!message || button.disabled) return;
-            
-            // If sending via text (not voice), reset voice mode
-            if (!voiceManager.voiceMode) {
-                voiceManager.voiceMode = false;
-            }
-            
-            button.disabled = true;
-            input.disabled = true;
-            
-            addMessage(message, true);
-            input.value = '';
-            
-            showTypingIndicator();
-            
-            try {
-                const response = await Promise.race([
-                    xploreonAI.generateResponseAsync(message),
-                    new Promise((_, reject) => setTimeout(() => reject(new Error('Timeout')), 5000))
-                ]);
-                
-                hideTypingIndicator();
-                addMessage(response.text, false, response.category);
-                
-            } catch (error) {
-                hideTypingIndicator();
-                addMessage("I'm having a quick technical moment. Please try again! 🛠️", false, "System");
-            } finally {
-                button.disabled = false;
-                input.disabled = false;
-                input.focus();
-            }
-        }
+     async function sendMessage() {
+    const input = document.getElementById('chatbotInput');
+    const button = document.getElementById('sendButton');
+    const message = input.value.trim();
+    
+    if (!message || button.disabled) return;
+    
+    // If sending via text (not voice), reset voice mode
+    if (!voiceManager.voiceMode) {
+        voiceManager.voiceMode = false;
+    }
+    
+    button.disabled = true;
+    input.disabled = true;
+    
+    addMessage(message, true);
+    input.value = '';
+    
+    showTypingIndicator();
+    
+    try {
+        // Add a random delay between 1 and 3 seconds
+        const delay = 1000 + Math.random() * 2000;
+        await new Promise(resolve => setTimeout(resolve, delay));
+        
+        const response = await Promise.race([
+            xploreonAI.generateResponseAsync(message),
+            new Promise((_, reject) => setTimeout(() => reject(new Error('Timeout')), 5000))
+        ]);
+        
+        hideTypingIndicator();
+        addMessage(response.text, false, response.category);
+        
+    } catch (error) {
+        hideTypingIndicator();
+        addMessage("I'm having a quick technical moment. Please try again! 🛠️", false, "System");
+    } finally {
+        button.disabled = false;
+        input.disabled = false;
+        input.focus();
+    }
+}
 
         function sendQuickMessage(message) {
             document.getElementById('chatbotInput').value = message;

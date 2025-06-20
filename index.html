@@ -792,25 +792,88 @@
                 this.initializeSpeechSynthesis();
             }
 
-            initializeSpeechSynthesis() {
-                const setVoice = () => {
-                    const voices = this.synthesis.getVoices();
-                    // Try to find a male voice
-                    this.maleVoice = voices.find(voice => 
-                        voice.name.toLowerCase().includes('male') ||
-                        voice.name.toLowerCase().includes('david') ||
-                        voice.name.toLowerCase().includes('alex') ||
-                        voice.name.toLowerCase().includes('daniel') ||
-                        voice.name.toLowerCase().includes('mark')
-                    ) || voices.find(voice => voice.lang.startsWith('en')) || voices[0];
-                };
+          initializeSpeechSynthesis() {
+    const setVoice = () => {
+        const voices = this.synthesis.getVoices();
+        
+        // Comprehensive male voice detection
+        const definiteMaleVoices = voices.filter(voice => {
+            const name = voice.name.toLowerCase();
+            
+            // Explicit male indicators
+            const maleKeywords = [
+                'male', 'man', 'masculine', 'boy', 'guy', 'gentleman',
+                // Common male names
+                'david', 'alex', 'daniel', 'mark', 'tom', 'james', 'john', 'mike',
+                'aaron', 'adam', 'albert', 'andrew', 'anthony', 'arthur', 'ben', 'benjamin',
+                'bob', 'brad', 'brian', 'bruce', 'carl', 'charles', 'chris', 'christopher',
+                'craig', 'dan', 'dave', 'dean', 'eric', 'frank', 'gary', 'george',
+                'gordon', 'greg', 'henry', 'jack', 'jake', 'jason', 'jeff', 'jim',
+                'joe', 'josh', 'justin', 'keith', 'ken', 'kevin', 'kyle', 'larry',
+                'luke', 'matt', 'matthew', 'max', 'nathan', 'nick', 'paul', 'peter',
+                'phil', 'rich', 'rick', 'rob', 'ryan', 'sam', 'scott', 'sean',
+                'steve', 'tim', 'tony', 'tyler', 'victor', 'wayne', 'will', 'william'
+            ];
+            
+            // Female indicators to exclude
+            const femaleKeywords = [
+                'female', 'woman', 'girl', 'lady', 'feminine',
+                'alice', 'anna', 'amy', 'emma', 'sarah', 'susan', 'mary', 'lisa',
+                'kate', 'helen', 'jane', 'julie', 'linda', 'karen', 'nancy', 'donna',
+                'carol', 'ruth', 'sharon', 'michelle', 'laura', 'emily', 'kimberly',
+                'deborah', 'dorothy', 'betty', 'sandra', 'brenda', 'angela', 'ashley',
+                'cynthia', 'marie', 'janet', 'catherine', 'frances', 'christine',
+                'samantha', 'debra', 'rachel', 'carolyn', 'virginia', 'maria',
+                'heather', 'diane', 'gloria', 'joyce', 'victoria', 'kelly',
+                'christina', 'joan', 'evelyn', 'judith', 'megan', 'andrea',
+                'cheryl', 'hannah', 'jacqueline', 'martha', 'sara'
+            ];
+            
+            // Check if voice is English
+            const isEnglish = voice.lang.toLowerCase().startsWith('en');
+            
+            // Check if definitely male
+            const isMale = maleKeywords.some(keyword => name.includes(keyword));
+            
+            // Check if definitely female
+            const isFemale = femaleKeywords.some(keyword => name.includes(keyword));
+            
+            return isEnglish && isMale && !isFemale;
+        });
+        
+        if (definiteMaleVoices.length > 0) {
+            // Sort by priority (prefer common names like David, Alex, etc.)
+            const priorityMaleNames = ['david', 'alex', 'daniel', 'mark', 'tom', 'james'];
+            definiteMaleVoices.sort((a, b) => {
+                const aName = a.name.toLowerCase();
+                const bName = b.name.toLowerCase();
+                
+                const aPriority = priorityMaleNames.findIndex(name => aName.includes(name));
+                const bPriority = priorityMaleNames.findIndex(name => bName.includes(name));
+                
+                if (aPriority !== -1 && bPriority !== -1) return aPriority - bPriority;
+                if (aPriority !== -1) return -1;
+                if (bPriority !== -1) return 1;
+                
+                return a.name.localeCompare(b.name);
+            });
+            
+            this.maleVoice = definiteMaleVoices[0];
+            console.log('✓ Male voice selected:', this.maleVoice.name);
+            return;
+        }
+        
+        // If no definite male voice found, disable voice feature
+        console.warn('⚠️ No male voice available - disabling voice feature');
+        this.maleVoice = null;
+    };
 
-                if (this.synthesis.getVoices().length === 0) {
-                    this.synthesis.addEventListener('voiceschanged', setVoice);
-                } else {
-                    setVoice();
-                }
-            }
+    if (this.synthesis.getVoices().length === 0) {
+        this.synthesis.addEventListener('voiceschanged', setVoice);
+    } else {
+        setVoice();
+    }
+}
 
             startListening() {
                 if (this.recognition && !this.isListening) {
@@ -825,38 +888,62 @@
                 this.updateVoiceUI();
             }
 
-            speak(text) {
-                if (this.synthesis && this.maleVoice && this.voiceMode) {
-                    // Cancel any ongoing speech
-                    this.synthesis.cancel();
-                    
-                    // Clean text for speech (remove HTML tags and special characters)
-                    const cleanText = text
-                        .replace(/<[^>]*>/g, ' ')
-                        .replace(/&[^;]+;/g, ' ')
-                        .replace(/\s+/g, ' ')
-                        .trim();
-                    
-                    const utterance = new SpeechSynthesisUtterance(cleanText);
-                    utterance.voice = this.maleVoice;
-                    utterance.rate = 0.9;
-                    utterance.pitch = 0.8;
-                    utterance.volume = 0.8;
-                    
-                    utterance.onstart = () => {
-                        this.isSpeaking = true;
-                        this.updateSpeakingUI();
-                    };
-                    
-                    utterance.onend = () => {
-                        this.isSpeaking = false;
-                        this.updateSpeakingUI();
-                        this.voiceMode = false; // Reset voice mode after speaking
-                    };
-                    
-                    this.synthesis.speak(utterance);
-                }
-            }
+           speak(text) {
+    // Only speak if we have a confirmed male voice and voice mode is active
+    if (this.synthesis && this.maleVoice && this.voiceMode) {
+        // Cancel any ongoing speech
+        this.synthesis.cancel();
+        
+        // Clean text for speech
+        const cleanText = text
+            .replace(/<[^>]*>/g, ' ')
+            .replace(/&[^;]+;/g, ' ')
+            .replace(/\s+/g, ' ')
+            .trim();
+        
+        const utterance = new SpeechSynthesisUtterance(cleanText);
+        utterance.voice = this.maleVoice;
+        utterance.rate = 0.85;  // Slower for deeper sound
+        utterance.pitch = 0.6;  // Lower pitch for masculine sound
+        utterance.volume = 0.8;
+        
+        utterance.onstart = () => {
+            this.isSpeaking = true;
+            this.updateSpeakingUI();
+        };
+        
+        utterance.onend = () => {
+            this.isSpeaking = false;
+            this.updateSpeakingUI();
+            this.voiceMode = false;
+        };
+        
+        this.synthesis.speak(utterance);
+    } else if (!this.maleVoice && this.voiceMode) {
+        console.log('🔇 Voice response skipped - no male voice available');
+        // Show a visual indicator that voice is not available
+        this.showVoiceUnavailableMessage();
+    }
+}
+
+showVoiceUnavailableMessage() {
+    // You can add a small visual indicator
+    const messagesContainer = document.getElementById('chatbotMessages');
+    const indicator = document.createElement('div');
+    indicator.style.cssText = `
+        text-align: center; 
+        font-size: 11px; 
+        color: #888; 
+        margin: 5px 0; 
+        font-style: italic;
+    `;
+    indicator.textContent = '🔇 Voice response unavailable (no male voice found)';
+    messagesContainer.appendChild(indicator);
+    
+    // Remove after 3 seconds
+    setTimeout(() => indicator.remove(), 3000);
+}
+
 
             stopSpeaking() {
                 if (this.synthesis) {

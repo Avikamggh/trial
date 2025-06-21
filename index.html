@@ -745,7 +745,9 @@
     </div>
 
     <script>
-       class VoiceManager {
+// Replace your VoiceManager class with this enhanced version for better mobile support:
+
+class VoiceManager {
     constructor() {
         this.recognition = null;
         this.synthesis = window.speechSynthesis;
@@ -756,6 +758,7 @@
         this.currentAudio = null;
         this.espeak = null;
         this.espeakReady = false;
+        this.isMobile = /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
         
         this.initializeVoice();
         this.initializeESpeak();
@@ -763,7 +766,9 @@
 
     async initializeESpeak() {
         try {
-            await new Promise(resolve => setTimeout(resolve, 1000));
+            // Longer wait for mobile devices
+            const waitTime = this.isMobile ? 3000 : 1000;
+            await new Promise(resolve => setTimeout(resolve, waitTime));
             
             if (typeof window.eSpeakNG !== 'undefined') {
                 console.log('🚀 eSpeak ready!');
@@ -771,7 +776,7 @@
                 await this.espeak.initialize();
                 this.espeakReady = true;
             } else {
-                console.warn('eSpeak not loaded, using fallback');
+                console.warn('eSpeak not loaded, using enhanced mobile fallback');
                 this.espeakReady = false;
             }
         } catch (error) {
@@ -817,19 +822,44 @@
     initializeFallbackMaleVoice() {
         const setMaleVoice = () => {
             const voices = this.synthesis.getVoices();
-            const maleVoicePatterns = [/male/i, /david/i, /alex/i, /daniel/i, /mark/i];
+            console.log('Available voices:', voices.map(v => v.name));
             
-            for (const pattern of maleVoicePatterns) {
-                this.maleVoice = voices.find(voice => 
-                    pattern.test(voice.name) && voice.lang.startsWith('en')
-                );
-                if (this.maleVoice) break;
+            // Enhanced mobile-specific male voice patterns
+            const mobilePatterns = [
+                /male/i, /man/i, /boy/i, /masculine/i,
+                /david/i, /alex/i, /daniel/i, /mark/i, /sam/i, /tom/i, /paul/i,
+                /google.*male/i, /android.*male/i, /samsung.*male/i
+            ];
+            
+            // Try mobile-specific patterns first
+            if (this.isMobile) {
+                for (const pattern of mobilePatterns) {
+                    this.maleVoice = voices.find(voice => pattern.test(voice.name));
+                    if (this.maleVoice) {
+                        console.log('Found mobile male voice:', this.maleVoice.name);
+                        break;
+                    }
+                }
             }
             
+            // If still no male voice found, try standard patterns
+            if (!this.maleVoice) {
+                const standardPatterns = [/male/i, /david/i, /alex/i, /daniel/i];
+                for (const pattern of standardPatterns) {
+                    this.maleVoice = voices.find(voice => 
+                        pattern.test(voice.name) && voice.lang.startsWith('en')
+                    );
+                    if (this.maleVoice) break;
+                }
+            }
+            
+            // Last resort: find any English voice and use low pitch
             if (!this.maleVoice) {
                 const englishVoices = voices.filter(voice => voice.lang.startsWith('en'));
                 this.maleVoice = englishVoices[0] || voices[0];
             }
+            
+            console.log('Selected voice:', this.maleVoice?.name || 'Default');
         };
 
         if (this.synthesis.getVoices().length === 0) {
@@ -841,9 +871,11 @@
 
     speak(text) {
         if (this.voiceMode) {
-            if (this.espeakReady) {
+            if (this.espeakReady && !this.isMobile) {
+                // Use eSpeak primarily on desktop
                 this.speakWithESpeak(text);
             } else {
+                // Use enhanced fallback (especially for mobile)
                 this.speakWithFallback(text);
             }
         }
@@ -892,23 +924,42 @@
     }
 
     speakWithFallback(text) {
+        console.log('🎤 Using enhanced fallback male voice for mobile');
+        
         this.synthesis.cancel();
         const cleanText = this.cleanTextForSpeech(text);
         const utterance = new SpeechSynthesisUtterance(cleanText);
         
+        // Enhanced mobile voice configuration
         if (this.maleVoice) {
             utterance.voice = this.maleVoice;
         }
-        utterance.rate = 0.85;
-        utterance.pitch = 0.7;
-        utterance.volume = 0.9;
+        
+        // Aggressive male voice settings for mobile
+        if (this.isMobile) {
+            utterance.rate = 0.75;      // Much slower for deeper sound
+            utterance.pitch = 0.5;      // Very low pitch
+            utterance.volume = 1.0;     // Max volume
+        } else {
+            utterance.rate = 0.85;
+            utterance.pitch = 0.7;
+            utterance.volume = 0.9;
+        }
         
         utterance.onstart = () => {
             this.isSpeaking = true;
             this.updateSpeakingUI();
+            console.log('Speaking with voice:', utterance.voice?.name || 'Default');
         };
         
         utterance.onend = () => {
+            this.isSpeaking = false;
+            this.updateSpeakingUI();
+            this.voiceMode = false;
+        };
+        
+        utterance.onerror = (error) => {
+            console.error('Speech error:', error);
             this.isSpeaking = false;
             this.updateSpeakingUI();
             this.voiceMode = false;
@@ -1705,5 +1756,21 @@ this.allKnowledge = {
             });
         });
     </script>
+
+// Add this script at the end of your HTML, just before </body>:
+<script>
+// Force voice reload on mobile
+if (/Android|iPhone|iPad|iPod/i.test(navigator.userAgent)) {
+    setTimeout(() => {
+        if (window.speechSynthesis) {
+            speechSynthesis.getVoices();
+            speechSynthesis.onvoiceschanged = () => {
+                console.log('Mobile voices reloaded');
+            };
+        }
+    }, 2000);
+}
+</script>
+
 </body>
 </html>

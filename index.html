@@ -4,7 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Xploreon Universal AI Assistant</title>
-    <style>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/espeak-ng@1.0.0/dist/espeak-ng.js"></script>    
+<style>
         @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Inter:wght@300;400;500;600&display=swap');
         
         * {
@@ -743,138 +745,7 @@
     </div>
 
     <script>
-        // Voice functionality
-        class VoiceManager {
-            constructor() {
-                this.recognition = null;
-                this.synthesis = window.speechSynthesis;
-                this.isListening = false;
-                this.isSpeaking = false;
-                this.maleVoice = null;
-                this.voiceMode = false; // Track if user is using voice
-                
-                this.initializeVoice();
-            }
-
-            initializeVoice() {
-                // Initialize Speech Recognition
-                if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
-                    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-                    this.recognition = new SpeechRecognition();
-                    
-                    this.recognition.continuous = false;
-                    this.recognition.interimResults = false;
-                    this.recognition.lang = 'en-US';
-                    
-                    this.recognition.onstart = () => {
-                        this.isListening = true;
-                        this.updateVoiceUI();
-                    };
-                    
-                    this.recognition.onresult = (event) => {
-                        const transcript = event.results[0][0].transcript;
-                        document.getElementById('chatbotInput').value = transcript;
-                        this.voiceMode = true; // Enable voice responses
-                        sendMessage();
-                    };
-                    
-                    this.recognition.onerror = (event) => {
-                        console.error('Speech recognition error:', event.error);
-                        this.stopListening();
-                    };
-                    
-                    this.recognition.onend = () => {
-                        this.stopListening();
-                    };
-                }
-
-                // Initialize Text-to-Speech with male voice
-                this.initializeSpeechSynthesis();
-            }
-
-          initializeSpeechSynthesis() {
-    const setVoice = () => {
-        const voices = this.synthesis.getVoices();
-        
-        // Comprehensive male voice detection
-        const definiteMaleVoices = voices.filter(voice => {
-            const name = voice.name.toLowerCase();
-            
-            // Explicit male indicators
-            const maleKeywords = [
-                'male', 'man', 'masculine', 'boy', 'guy', 'gentleman',
-                // Common male names
-                'david', 'alex', 'daniel', 'mark', 'tom', 'james', 'john', 'mike',
-                'aaron', 'adam', 'albert', 'andrew', 'anthony', 'arthur', 'ben', 'benjamin',
-                'bob', 'brad', 'brian', 'bruce', 'carl', 'charles', 'chris', 'christopher',
-                'craig', 'dan', 'dave', 'dean', 'eric', 'frank', 'gary', 'george',
-                'gordon', 'greg', 'henry', 'jack', 'jake', 'jason', 'jeff', 'jim',
-                'joe', 'josh', 'justin', 'keith', 'ken', 'kevin', 'kyle', 'larry',
-                'luke', 'matt', 'matthew', 'max', 'nathan', 'nick', 'paul', 'peter',
-                'phil', 'rich', 'rick', 'rob', 'ryan', 'sam', 'scott', 'sean',
-                'steve', 'tim', 'tony', 'tyler', 'victor', 'wayne', 'will', 'william'
-            ];
-            
-            // Female indicators to exclude
-            const femaleKeywords = [
-                'female', 'woman', 'girl', 'lady', 'feminine',
-                'alice', 'anna', 'amy', 'emma', 'sarah', 'susan', 'mary', 'lisa',
-                'kate', 'helen', 'jane', 'julie', 'linda', 'karen', 'nancy', 'donna',
-                'carol', 'ruth', 'sharon', 'michelle', 'laura', 'emily', 'kimberly',
-                'deborah', 'dorothy', 'betty', 'sandra', 'brenda', 'angela', 'ashley',
-                'cynthia', 'marie', 'janet', 'catherine', 'frances', 'christine',
-                'samantha', 'debra', 'rachel', 'carolyn', 'virginia', 'maria',
-                'heather', 'diane', 'gloria', 'joyce', 'victoria', 'kelly',
-                'christina', 'joan', 'evelyn', 'judith', 'megan', 'andrea',
-                'cheryl', 'hannah', 'jacqueline', 'martha', 'sara'
-            ];
-            
-            // Check if voice is English
-            const isEnglish = voice.lang.toLowerCase().startsWith('en');
-            
-            // Check if definitely male
-            const isMale = maleKeywords.some(keyword => name.includes(keyword));
-            
-            // Check if definitely female
-            const isFemale = femaleKeywords.some(keyword => name.includes(keyword));
-            
-            return isEnglish && isMale && !isFemale;
-        });
-        
-        if (definiteMaleVoices.length > 0) {
-            // Sort by priority (prefer common names like David, Alex, etc.)
-            const priorityMaleNames = ['david', 'alex', 'daniel', 'mark', 'tom', 'james'];
-            definiteMaleVoices.sort((a, b) => {
-                const aName = a.name.toLowerCase();
-                const bName = b.name.toLowerCase();
-                
-                const aPriority = priorityMaleNames.findIndex(name => aName.includes(name));
-                const bPriority = priorityMaleNames.findIndex(name => bName.includes(name));
-                
-                if (aPriority !== -1 && bPriority !== -1) return aPriority - bPriority;
-                if (aPriority !== -1) return -1;
-                if (bPriority !== -1) return 1;
-                
-                return a.name.localeCompare(b.name);
-            });
-            
-            this.maleVoice = definiteMaleVoices[0];
-            console.log('✓ Male voice selected:', this.maleVoice.name);
-            return;
-        }
-        
-        // If no definite male voice found, disable voice feature
-        console.warn('⚠️ No male voice available - disabling voice feature');
-        this.maleVoice = null;
-    };
-
-    if (this.synthesis.getVoices().length === 0) {
-        this.synthesis.addEventListener('voiceschanged', setVoice);
-    } else {
-        setVoice();
-    }
-}
-
+// Enhanced Voice functionality with eSpeak for consistent male voice class VoiceManager { constructor() { this.recognition = null; this.synthesis = window.speechSynthesis; this.isListening = false; this.isSpeaking = false; this.maleVoice = null; this.voiceMode = false; this.currentAudio = null; this.espeak = null; this.espeakReady = false; this.initializeVoice(); this.initializeESpeak(); } async initializeESpeak() { try { // Wait a bit for the library to load await new Promise(resolve => setTimeout(resolve, 1000)); if (typeof window.eSpeakNG !== 'undefined') { console.log('🚀 Initializing eSpeak for consistent male voice...'); this.espeak = window.eSpeakNG; await this.espeak.initialize(); this.espeakReady = true; console.log('✅ eSpeak ready! Male voice guaranteed across all devices.'); } else { console.warn('⚠️ eSpeak not loaded, using fallback male voice selection'); this.espeakReady = false; } } catch (error) { console.error('❌ eSpeak initialization failed:', error); this.espeakReady = false; } } initializeVoice() { // Initialize Speech Recognition if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) { const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition; this.recognition = new SpeechRecognition(); this.recognition.continuous = false; this.recognition.interimResults = false; this.recognition.lang = 'en-US'; this.recognition.onstart = () => { this.isListening = true; this.updateVoiceUI(); }; this.recognition.onresult = (event) => { const transcript = event.results[0][0].transcript; document.getElementById('chatbotInput').value = transcript; this.voiceMode = true; sendMessage(); }; this.recognition.onerror = (event) => { console.error('Speech recognition error:', event.error); this.stopListening(); }; this.recognition.onend = () => { this.stopListening(); }; } // Initialize fallback male voice selection this.initializeFallbackMaleVoice(); } initializeFallbackMaleVoice() { const setMaleVoice = () => { const voices = this.synthesis.getVoices(); // Prioritized list of male voice patterns const maleVoicePatterns = [ /male/i, /david/i, /alex/i, /daniel/i, /mark/i, /sam/i, /tom/i, /paul/i ]; // Find the best male voice for (const pattern of maleVoicePatterns) { this.maleVoice = voices.find(voice => pattern.test(voice.name) && voice.lang.startsWith('en') ); if (this.maleVoice) break; } // If no specific male voice found, use first English voice if (!this.maleVoice) { const englishVoices = voices.filter(voice => voice.lang.startsWith('en')); this.maleVoice = englishVoices[0] || voices[0]; } console.log('🎯 Fallback male voice selected:', this.maleVoice?.name); }; if (this.synthesis.getVoices().length === 0) { this.synthesis.addEventListener('voiceschanged', setMaleVoice); } else { setMaleVoice(); } } speak(text) { if (this.voiceMode) { if (this.espeakReady) { this.speakWithESpeak(text); } else { this.speakWithFallback(text); } } } speakWithESpeak(text) { console.log('🎤 Using eSpeak male voice'); // Stop any current audio this.stopSpeaking(); // Clean text for speech const cleanText = this.cleanTextForSpeech(text); try { // eSpeak male voice configuration const voiceOptions = { voice: 'en+m3', // Male voice variant 3 (deeper) speed: 140, // Good speaking speed pitch: 35, // Lower pitch for masculine sound amplitude: 85, // Good volume level wordGap: 1 // Slight pause between words }; // Generate speech audio const audioData = this.espeak.synthesize(cleanText, voiceOptions); // Create and play audio const audioBlob = new Blob([audioData], { type: 'audio/wav' }); const audioUrl = URL.createObjectURL(audioBlob); this.currentAudio = new Audio(audioUrl); this.currentAudio.onplay = () => { this.isSpeaking = true; this.updateSpeakingUI(); }; this.currentAudio.onended = () => { this.isSpeaking = false; this.updateSpeakingUI(); this.voiceMode = false; URL.revokeObjectURL(audioUrl); }; this.currentAudio.onerror = (error) => { console.error('❌ eSpeak audio error:', error); URL.revokeObjectURL(audioUrl); this.speakWithFallback(cleanText); }; this.currentAudio.play(); } catch (error) { console.error('❌ eSpeak synthesis failed:', error); this.speakWithFallback(cleanText); } } speakWithFallback(text) { console.log('🎤 Using fallback male voice'); // Cancel any ongoing speech this.synthesis.cancel(); const cleanText = this.cleanTextForSpeech(text); const utterance = new SpeechSynthesisUtterance(cleanText); // Configure for masculine sound if (this.maleVoice) { utterance.voice = this.maleVoice; } utterance.rate = 0.85; // Slower for deeper sound utterance.pitch = 0.7; // Lower pitch utterance.volume = 0.9; // Good volume utterance.onstart = () => { this.isSpeaking = true; this.updateSpeakingUI(); }; utterance.onend = () => { this.isSpeaking = false; this.updateSpeakingUI(); this.voiceMode = false; }; utterance.onerror = (error) => { console.error('❌ Fallback speech error:', error); this.isSpeaking = false; this.updateSpeakingUI(); this.voiceMode = false; }; this.synthesis.speak(utterance); } cleanTextForSpeech(text) { return text .replace(/<[^>]*>/g, ' ') // Remove HTML tags .replace(/&[^;]+;/g, ' ') // Remove HTML entities .replace(/[🚀🌟✨🌌🛰️🔬⚡🌍🌙🔴⭐🎯💫🤖👋🌠]/g, '') // Remove emojis .replace(/\s+/g, ' ') // Normalize whitespace .replace(/[^\x00-\x7F]/g, '') // Remove non-ASCII .trim(); } stopSpeaking() { // Stop eSpeak audio if (this.currentAudio) { this.currentAudio.pause(); this.currentAudio.currentTime = 0; this.currentAudio = null; } // Stop browser synthesis if (this.synthesis) { this.synthesis.cancel(); } this.isSpeaking = false; this.updateSpeakingUI(); } startListening() { if (this.recognition && !this.isListening) { this.stopSpeaking(); this.recognition.start(); } } stopListening() { this.isListening = false; this.updateVoiceUI(); } updateVoiceUI() { const micButton = document.getElementById('micButton'); const voiceStatus = document.getElementById('voiceStatus'); const voiceVisualization = document.getElementById('voiceVisualization'); if (this.isListening) { micButton.classList.add('listening'); micButton.textContent = '🔴'; voiceStatus.classList.add('active'); voiceVisualization.classList.add('active'); } else { micButton.classList.remove('listening'); micButton.textContent = '🎤'; voiceStatus.classList.remove('active'); voiceVisualization.classList.remove('active'); } } updateSpeakingUI() { const avatars = document.querySelectorAll('.humanoid-avatar'); const chatbotToggle = document.querySelector('.chatbot-toggle'); if (this.isSpeaking) { avatars.forEach(avatar => avatar.classList.add('speaking')); chatbotToggle.classList.add('speaking'); } else { avatars.forEach(avatar => avatar.classList.remove('speaking')); chatbotToggle.classList.remove('speaking'); } } }
             startListening() {
                 if (this.recognition && !this.isListening) {
                     // Stop any ongoing speech when user wants to speak

@@ -1184,7 +1184,7 @@
                     this.showAchievement();
                     this.updateProgress();
                     
-                    // Check if all videos are completed and ask for name
+                    // Check if all videos are completed
                     if (this.state.completedVideos.length === 14) {
                         this.promptForCertificateName();
                     }
@@ -1192,27 +1192,22 @@
             }
 
             promptForCertificateName() {
-                // Always ask for name when all lessons are completed, even if one exists
-                setTimeout(() => {
-                    const name = prompt('🎉 Congratulations! You\'ve completed all lessons!\n\nEnter your name for the certificate:') || 'Space Explorer';
-                    localStorage.setItem('xploreon_student_name', name);
-                    
-                    // Show completion message
-                    const completionPopup = document.getElementById('achievementPopup');
-                    if (completionPopup) {
-                        completionPopup.innerHTML = `
-                            <div class="flex items-center space-x-3">
-                                <div class="text-2xl md:text-3xl">🏆</div>
-                                <div>
-                                    <div class="font-bold">All Lessons Complete!</div>
-                                    <div class="text-sm opacity-80">Certificate ready for ${name}!</div>
-                                </div>
+                // Just show completion message without asking for name
+                // Name will be asked when user clicks certificate button
+                const completionPopup = document.getElementById('achievementPopup');
+                if (completionPopup) {
+                    completionPopup.innerHTML = `
+                        <div class="flex items-center space-x-3">
+                            <div class="text-2xl md:text-3xl">🏆</div>
+                            <div>
+                                <div class="font-bold">All Lessons Complete!</div>
+                                <div class="text-sm opacity-80">Click certificate to get yours!</div>
                             </div>
-                        `;
-                        completionPopup.classList.add('show');
-                        setTimeout(() => completionPopup.classList.remove('show'), 4000);
-                    }
-                }, 1000); // Small delay to let the regular achievement show first
+                        </div>
+                    `;
+                    completionPopup.classList.add('show');
+                    setTimeout(() => completionPopup.classList.remove('show'), 4000);
+                }
             }
 
             getProgress() {
@@ -1772,16 +1767,20 @@
         // Certificate functions
         function openCertificateModal() {
             const modal = document.getElementById('certificateModal');
+            const progress = progressManager.getProgress();
             
-            // Get stored name or prompt if not available
-            let storedName = localStorage.getItem('xploreon_student_name');
-            if (!storedName) {
-                storedName = prompt('Enter your name for the certificate:') || 'Space Explorer';
-                localStorage.setItem('xploreon_student_name', storedName);
+            // If all videos are completed, ask for name
+            if (progress.completed === 14) {
+                const userName = prompt('🎉 Congratulations! All lessons completed!\n\nEnter your name for the certificate:') || 'Space Explorer';
+                localStorage.setItem('xploreon_student_name', userName);
+                
+                const studentNameEl = document.getElementById('studentName');
+                if (studentNameEl) studentNameEl.textContent = userName;
+            } else {
+                // For incomplete progress, show default
+                const studentNameEl = document.getElementById('studentName');
+                if (studentNameEl) studentNameEl.textContent = 'Space Explorer';
             }
-            
-            const studentNameEl = document.getElementById('studentName');
-            if (studentNameEl) studentNameEl.textContent = storedName;
             
             const completionDateEl = document.getElementById('completionDate');
             if (completionDateEl) {
@@ -1807,9 +1806,9 @@
                 return;
             }
 
-            // Ensure we have a name, prompt if not
+            // Get the stored name (should already be set when opening the modal)
             let studentName = localStorage.getItem('xploreon_student_name');
-            if (!studentName) {
+            if (!studentName || studentName === 'Space Explorer') {
                 studentName = prompt('Enter your name for the certificate:') || 'Space Explorer';
                 localStorage.setItem('xploreon_student_name', studentName);
                 
@@ -1879,7 +1878,7 @@
             document.body.removeChild(a);
             URL.revokeObjectURL(url);
             
-            alert('🎉 Certificate downloaded successfully!');
+            alert(`🎉 Certificate downloaded successfully for ${studentName}!`);
         }
 
         // Mobile menu toggle

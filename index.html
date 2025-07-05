@@ -1183,7 +1183,36 @@
                     this.saveState();
                     this.showAchievement();
                     this.updateProgress();
+                    
+                    // Check if all videos are completed and ask for name
+                    if (this.state.completedVideos.length === 14) {
+                        this.promptForCertificateName();
+                    }
                 }
+            }
+
+            promptForCertificateName() {
+                // Always ask for name when all lessons are completed, even if one exists
+                setTimeout(() => {
+                    const name = prompt('🎉 Congratulations! You\'ve completed all lessons!\n\nEnter your name for the certificate:') || 'Space Explorer';
+                    localStorage.setItem('xploreon_student_name', name);
+                    
+                    // Show completion message
+                    const completionPopup = document.getElementById('achievementPopup');
+                    if (completionPopup) {
+                        completionPopup.innerHTML = `
+                            <div class="flex items-center space-x-3">
+                                <div class="text-2xl md:text-3xl">🏆</div>
+                                <div>
+                                    <div class="font-bold">All Lessons Complete!</div>
+                                    <div class="text-sm opacity-80">Certificate ready for ${name}!</div>
+                                </div>
+                            </div>
+                        `;
+                        completionPopup.classList.add('show');
+                        setTimeout(() => completionPopup.classList.remove('show'), 4000);
+                    }
+                }, 1000); // Small delay to let the regular achievement show first
             }
 
             getProgress() {
@@ -1744,16 +1773,15 @@
         function openCertificateModal() {
             const modal = document.getElementById('certificateModal');
             
-            const storedName = localStorage.getItem('xploreon_student_name');
+            // Get stored name or prompt if not available
+            let storedName = localStorage.getItem('xploreon_student_name');
             if (!storedName) {
-                const name = prompt('Enter your name for the certificate:') || 'Space Explorer';
-                localStorage.setItem('xploreon_student_name', name);
-                const studentNameEl = document.getElementById('studentName');
-                if (studentNameEl) studentNameEl.textContent = name;
-            } else {
-                const studentNameEl = document.getElementById('studentName');
-                if (studentNameEl) studentNameEl.textContent = storedName;
+                storedName = prompt('Enter your name for the certificate:') || 'Space Explorer';
+                localStorage.setItem('xploreon_student_name', storedName);
             }
+            
+            const studentNameEl = document.getElementById('studentName');
+            if (studentNameEl) studentNameEl.textContent = storedName;
             
             const completionDateEl = document.getElementById('completionDate');
             if (completionDateEl) {
@@ -1779,7 +1807,17 @@
                 return;
             }
 
-            const studentName = localStorage.getItem('xploreon_student_name') || 'Space Explorer';
+            // Ensure we have a name, prompt if not
+            let studentName = localStorage.getItem('xploreon_student_name');
+            if (!studentName) {
+                studentName = prompt('Enter your name for the certificate:') || 'Space Explorer';
+                localStorage.setItem('xploreon_student_name', studentName);
+                
+                // Update the displayed name in the modal
+                const studentNameEl = document.getElementById('studentName');
+                if (studentNameEl) studentNameEl.textContent = studentName;
+            }
+
             const completionDate = new Date().toLocaleDateString('en-US', { 
                 year: 'numeric', 
                 month: 'long', 

@@ -238,6 +238,22 @@
             aspect-ratio: 16/9;
         }
 
+        .youtube-container {
+            position: relative;
+            background: #000;
+            border-radius: 15px;
+            overflow: hidden;
+            width: 100%;
+            aspect-ratio: 16/9;
+        }
+
+        .youtube-player {
+            width: 100%;
+            height: 100%;
+            border: none;
+            border-radius: 15px;
+        }
+
         .custom-video-controls {
             position: absolute;
             bottom: 0;
@@ -298,6 +314,30 @@
             font-size: 12px;
             min-width: 80px;
             text-align: right;
+        }
+
+        /* YouTube Overlay */
+        .youtube-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(transparent, rgba(0, 0, 0, 0.8));
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+            z-index: 10;
+            pointer-events: none;
+            border-radius: 15px;
+        }
+
+        .youtube-progress-info {
+            padding: 1rem;
+            background: rgba(0, 0, 0, 0.8);
+            border-radius: 10px;
+            margin: 1rem;
+            text-align: center;
         }
 
         /* Certificate Styles */
@@ -693,7 +733,24 @@
                 <button onclick="closeVideoModal()" class="text-white hover:text-red-500 text-2xl md:text-3xl">&times;</button>
             </div>
             
-            <div class="custom-video-container" id="videoContainer">
+            <!-- YouTube Video Container -->
+            <div class="youtube-container" id="youtubeContainer" style="display: none;">
+                <div id="youtubePlayer"></div>
+                <div class="youtube-overlay" id="youtubeOverlay">
+                    <div class="youtube-progress-info">
+                        <div class="text-sm text-cyan-400" id="youtubeProgressText">Watch to completion for auto-progress</div>
+                        <div class="mt-2">
+                            <div class="w-full bg-gray-700 rounded-full h-2">
+                                <div class="bg-gradient-to-r from-cyan-400 to-blue-500 h-2 rounded-full transition-all duration-500" id="youtubeProgressBar" style="width: 0%"></div>
+                            </div>
+                        </div>
+                        <div class="text-xs mt-2 opacity-80" id="youtubeTimeDisplay">0:00 / 0:00</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Regular Video Container -->
+            <div class="custom-video-container" id="videoContainer" style="display: none;">
                 <video id="videoPlayer" class="w-full h-full" preload="metadata">
                     <source src="" type="video/mp4">
                     Your browser does not support the video tag.
@@ -838,6 +895,9 @@
         </div>
     </div>
 
+    <!-- YouTube API -->
+    <script src="https://www.youtube.com/iframe_api"></script>
+
     <script>
         // Learning Videos Data from your curriculum
         const learningVideos = [
@@ -848,8 +908,8 @@
                 icon: "🚀",
                 duration: "6 min",
                 difficulty: "Beginner",
-                 videoUrl: "https://youtu.be/EiTpNvksK3k",
-        isYouTube: true, 
+                videoUrl: "https://youtu.be/EiTpNvksK3k",
+                isYouTube: true, 
                 objectives: [
                     "Overview of space exploration history",
                     "Major milestones in human space exploration",
@@ -1045,6 +1105,28 @@
                 ]
             }
         ];
+
+        // YouTube Player Variables
+        let youtubePlayer = null;
+        let youtubePlayerReady = false;
+        let currentVideoId = null;
+        let watchedTime = 0;
+        let totalDuration = 0;
+        let lastTimeUpdate = 0;
+        let isVideoCompleted = false;
+        let checkInterval = null;
+
+        // YouTube API Ready Callback
+        function onYouTubeIframeAPIReady() {
+            // YouTube API is ready
+        }
+
+        // Extract YouTube Video ID from URL
+        function getYouTubeVideoId(url) {
+            const regex = /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/;
+            const match = url.match(regex);
+            return match ? match[1] : null;
+        }
 
         // Learning Progress Manager
         class LearningProgressManager {
@@ -1292,17 +1374,132 @@
             });
         }
 
+        // YouTube Player State Change Handler
+        function onPlayerStateChange(event) {
+            if (event.data === YT.PlayerState.PLAYING) {
+                startWatchTimeTracking();
+            } else if (event.data === YT.PlayerState.PAUSED || event.data === YT.PlayerState.ENDED) {
+                stopWatchTimeTracking();
+            }
+
+            if (event.data === YT.PlayerState.ENDED) {
+                checkVideoCompletion();
+            }
+        }
+
+        // YouTube Player Ready Handler
+        function onPlayerReady(event) {
+            youtubePlayerReady = true;
+            totalDuration = youtubePlayer.getDuration();
+            updateYouTubeProgressDisplay();
+        }
+
+        // Start tracking watch time
+        function startWatchTimeTracking() {
+            if (checkInterval) clearInterval(checkInterval);
+            
+            checkInterval = setInterval(() => {
+                if (youtubePlayer && youtubePlayerReady) {
+                    const currentTime = youtubePlayer.getCurrentTime();
+                    
+                    // Only count forward progression
+                    if (currentTime > lastTimeUpdate && (currentTime - lastTimeUpdate) < 2) {
+                        watchedTime += (currentTime - lastTimeUpdate);
+                    }
+                    
+                    lastTimeUpdate = currentTime;
+                    updateYouTubeProgressDisplay();
+                    checkVideoCompletion();
+                }
+            }, 1000);
+        }
+
+        // Stop tracking watch time
+        function stopWatchTimeTracking() {
+            if (checkInterval) {
+                clearInterval(checkInterval);
+                checkInterval = null;
+            }
+        }
+
+        // Update YouTube progress display
+        function updateYouTubeProgressDisplay() {
+            if (!youtubePlayer || !youtubePlayerReady) return;
+
+            const currentTime = youtubePlayer.getCurrentTime();
+            const duration = youtubePlayer.getDuration();
+            
+            if (duration > 0) {
+                const progressPercent = (currentTime / duration) * 100;
+                const progressBar = document.getElementById('youtubeProgressBar');
+                if (progressBar) {
+                    progressBar.style.width = progressPercent + '%';
+                }
+
+                // Update time display
+                const currentMin = Math.floor(currentTime / 60);
+                const currentSec = Math.floor(currentTime % 60);
+                const totalMin = Math.floor(duration / 60);
+                const totalSec = Math.floor(duration % 60);
+                
+                const timeDisplay = document.getElementById('youtubeTimeDisplay');
+                if (timeDisplay) {
+                    timeDisplay.textContent = `${currentMin}:${currentSec.toString().padStart(2, '0')} / ${totalMin}:${totalSec.toString().padStart(2, '0')}`;
+                }
+            }
+        }
+
+        // Check video completion
+        function checkVideoCompletion() {
+            if (!youtubePlayer || !youtubePlayerReady || isVideoCompleted) return;
+
+            const duration = youtubePlayer.getDuration();
+            const currentTime = youtubePlayer.getCurrentTime();
+            
+            // Require 90% watch time and 95% progress
+            const requiredWatchTime = duration * 0.9;
+            const requiredProgress = duration * 0.95;
+            
+            if (watchedTime >= requiredWatchTime && currentTime >= requiredProgress) {
+                isVideoCompleted = true;
+                
+                if (!progressManager.isVideoCompleted(currentVideoId)) {
+                    progressManager.completeVideo(currentVideoId);
+                    initializeLearningPath();
+                    
+                    // Update status
+                    const progressText = document.getElementById('youtubeProgressText');
+                    if (progressText) {
+                        progressText.innerHTML = '🎉 Video completed! Well done!';
+                        progressText.className = 'text-sm text-green-400';
+                    }
+
+                    const videoStatus = document.getElementById('videoStatus');
+                    if (videoStatus) {
+                        videoStatus.innerHTML = '🎉 Video completed! Well done!';
+                        videoStatus.className = 'bg-green-500 bg-opacity-20 text-green-300 py-2 px-4 rounded-lg text-sm w-full md:w-auto text-center';
+                    }
+                }
+            }
+        }
+
         // Open video modal
         function openVideo(videoId) {
             const video = learningVideos.find(v => v.id === videoId);
             if (!video) return;
 
+            currentVideoId = videoId;
+            watchedTime = 0;
+            lastTimeUpdate = 0;
+            isVideoCompleted = false;
+
             const modal = document.getElementById('videoModal');
             const title = document.getElementById('videoTitle');
             const objectives = document.getElementById('learningObjectives');
             const duration = document.getElementById('videoDuration');
-            const videoPlayer = document.getElementById('videoPlayer');
             const videoStatus = document.getElementById('videoStatus');
+            const youtubeContainer = document.getElementById('youtubeContainer');
+            const videoContainer = document.getElementById('videoContainer');
 
             if (title) title.textContent = `Video ${video.id}: ${video.title}`;
             if (duration) duration.textContent = video.duration;
@@ -1326,16 +1523,57 @@
                 });
             }
 
-            if (videoPlayer) {
-                videoPlayer.src = video.videoUrl;
-                setupNonSkippableControls(videoPlayer, videoId);
+            // Handle YouTube vs regular video
+            if (video.isYouTube) {
+                const videoIdYT = getYouTubeVideoId(video.videoUrl);
+                if (videoIdYT) {
+                    // Show YouTube container, hide regular video container
+                    if (youtubeContainer) youtubeContainer.style.display = 'block';
+                    if (videoContainer) videoContainer.style.display = 'none';
+
+                    // Destroy existing player if any
+                    if (youtubePlayer) {
+                        youtubePlayer.destroy();
+                    }
+
+                    // Create new YouTube player
+                    youtubePlayer = new YT.Player('youtubePlayer', {
+                        width: '100%',
+                        height: '100%',
+                        videoId: videoIdYT,
+                        playerVars: {
+                            autoplay: 0,
+                            controls: 1,
+                            rel: 0,
+                            showinfo: 0,
+                            modestbranding: 1,
+                            fs: 1,
+                            cc_load_policy: 0,
+                            iv_load_policy: 3
+                        },
+                        events: {
+                            onReady: onPlayerReady,
+                            onStateChange: onPlayerStateChange
+                        }
+                    });
+                }
+            } else {
+                // Show regular video container, hide YouTube container
+                if (youtubeContainer) youtubeContainer.style.display = 'none';
+                if (videoContainer) videoContainer.style.display = 'block';
+
+                const videoPlayer = document.getElementById('videoPlayer');
+                if (videoPlayer) {
+                    videoPlayer.src = video.videoUrl;
+                    setupNonSkippableControls(videoPlayer, videoId);
+                }
             }
 
             if (modal) modal.style.display = 'block';
             progressManager.currentVideoId = videoId;
         }
 
-        // Non-skippable video controls
+        // Non-skippable video controls for regular videos
         function setupNonSkippableControls(videoElement, videoId) {
             const playPauseBtn = document.getElementById('playPauseBtn');
             const playPauseIcon = document.getElementById('playPauseIcon');
@@ -1496,6 +1734,17 @@
             const modal = document.getElementById('videoModal');
             const videoPlayer = document.getElementById('videoPlayer');
             
+            // Stop YouTube tracking
+            stopWatchTimeTracking();
+            
+            // Destroy YouTube player
+            if (youtubePlayer) {
+                youtubePlayer.destroy();
+                youtubePlayer = null;
+                youtubePlayerReady = false;
+            }
+
+            // Reset regular video player
             if (videoPlayer) {
                 videoPlayer.pause();
                 videoPlayer.currentTime = 0;
@@ -1516,6 +1765,12 @@
             }
             
             if (modal) modal.style.display = 'none';
+            
+            // Reset tracking variables
+            currentVideoId = null;
+            watchedTime = 0;
+            lastTimeUpdate = 0;
+            isVideoCompleted = false;
         }
 
         // Certificate functions
@@ -1667,7 +1922,11 @@
             modals.forEach(modalId => {
                 const modal = document.getElementById(modalId);
                 if (modal && event.target === modal) {
-                    modal.style.display = 'none';
+                    if (modalId === 'videoModal') {
+                        closeVideoModal();
+                    } else {
+                        modal.style.display = 'none';
+                    }
                 }
             });
         }
@@ -1679,7 +1938,11 @@
                 modals.forEach(modalId => {
                     const modal = document.getElementById(modalId);
                     if (modal && modal.style.display === 'block') {
-                        modal.style.display = 'none';
+                        if (modalId === 'videoModal') {
+                            closeVideoModal();
+                        } else {
+                            modal.style.display = 'none';
+                        }
                     }
                 });
                 

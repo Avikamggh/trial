@@ -736,17 +736,6 @@
             <!-- YouTube Video Container -->
             <div class="youtube-container" id="youtubeContainer" style="display: none;">
                 <div id="youtubePlayer"></div>
-                <div class="youtube-overlay" id="youtubeOverlay">
-                    <div class="youtube-progress-info">
-                        <div class="text-sm text-cyan-400" id="youtubeProgressText">Watch to completion for auto-progress</div>
-                        <div class="mt-2">
-                            <div class="w-full bg-gray-700 rounded-full h-2">
-                                <div class="bg-gradient-to-r from-cyan-400 to-blue-500 h-2 rounded-full transition-all duration-500" id="youtubeProgressBar" style="width: 0%"></div>
-                            </div>
-                        </div>
-                        <div class="text-xs mt-2 opacity-80" id="youtubeTimeDisplay">0:00 / 0:00</div>
-                    </div>
-                </div>
             </div>
 
             <!-- Regular Video Container -->
@@ -1424,29 +1413,8 @@
 
         // Update YouTube progress display
         function updateYouTubeProgressDisplay() {
-            if (!youtubePlayer || !youtubePlayerReady) return;
-
-            const currentTime = youtubePlayer.getCurrentTime();
-            const duration = youtubePlayer.getDuration();
-            
-            if (duration > 0) {
-                const progressPercent = (currentTime / duration) * 100;
-                const progressBar = document.getElementById('youtubeProgressBar');
-                if (progressBar) {
-                    progressBar.style.width = progressPercent + '%';
-                }
-
-                // Update time display
-                const currentMin = Math.floor(currentTime / 60);
-                const currentSec = Math.floor(currentTime % 60);
-                const totalMin = Math.floor(duration / 60);
-                const totalSec = Math.floor(duration % 60);
-                
-                const timeDisplay = document.getElementById('youtubeTimeDisplay');
-                if (timeDisplay) {
-                    timeDisplay.textContent = `${currentMin}:${currentSec.toString().padStart(2, '0')} / ${totalMin}:${totalSec.toString().padStart(2, '0')}`;
-                }
-            }
+            // Progress tracking happens silently in the background
+            // No visual elements to update since overlay is removed
         }
 
         // Check video completion
@@ -1467,13 +1435,7 @@
                     progressManager.completeVideo(currentVideoId);
                     initializeLearningPath();
                     
-                    // Update status
-                    const progressText = document.getElementById('youtubeProgressText');
-                    if (progressText) {
-                        progressText.innerHTML = '🎉 Video completed! Well done!';
-                        progressText.className = 'text-sm text-green-400';
-                    }
-
+                    // Update status below video
                     const videoStatus = document.getElementById('videoStatus');
                     if (videoStatus) {
                         videoStatus.innerHTML = '🎉 Video completed! Well done!';

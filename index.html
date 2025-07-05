@@ -607,8 +607,9 @@
                 <li><a href="news.html" class="hover:text-cyan-400 transition-colors">News</a></li>
                 <li><a href="tracker.html" class="hover:text-cyan-400 transition-colors">Tracker</a></li>
                 <li><a href="competition.html" class="hover:text-cyan-400 transition-colors">Competition</a></li>
+                 <li><a href="ladder-game.html" class="hover:text-cyan-400 transition-colors">Learning</a></li>
                 <li><a href="contact.html" class="hover:text-cyan-400 transition-colors">Contact</a></li>
-                <li><a href="ladder-game.html" class="hover:text-cyan-400 transition-colors">Learning</a></li>
+               
             </ul>
         </div>
     </nav>
@@ -621,8 +622,9 @@
         <li><a href="news.html" class="block py-3 px-2 hover:text-cyan-400 transition-colors" onclick="toggleMobileMenu()">📰 News</a></li>
         <li><a href="tracker.html" class="block py-3 px-2 hover:text-cyan-400 transition-colors" onclick="toggleMobileMenu()">🛰️ Tracker</a></li>
         <li><a href="competition.html" class="block py-3 px-2 hover:text-cyan-400 transition-colors" onclick="toggleMobileMenu()">🏆 Competition</a></li>
-        <li><a href="contact.html" class="block py-3 px-2 hover:text-cyan-400 transition-colors" onclick="toggleMobileMenu()">📞 Contact</a></li>
         <li><a href="ladder-game.html" class="block py-3 px-2 hover:text-cyan-400 transition-colors" onclick="toggleMobileMenu()">🎓 Learning</a></li>
+        <li><a href="contact.html" class="block py-3 px-2 hover:text-cyan-400 transition-colors" onclick="toggleMobileMenu()">📞 Contact</a></li>
+        
     </ul>
 
     <!-- Premium Floating Button -->
@@ -794,26 +796,36 @@
         </div>
     </div>
 
-    <!-- Premium Modal -->
-    <div class="modal" id="premiumModal">
-        <div class="modal-content" style="background: linear-gradient(135deg, #667eea, #764ba2);">
-            <div class="text-center">
-                <button onclick="closePremiumModal()" class="absolute top-4 right-4 text-white hover:text-gray-300 text-2xl">&times;</button>
-                
-                <div class="text-4xl md:text-6xl mb-4">💎</div>
-                <h2 class="text-2xl md:text-3xl font-bold mb-2 text-white">Unlock Premium Learning</h2>
-                <p class="text-white opacity-80 mb-6 md:mb-8">Access exclusive video content and advanced features</p>
-                
-                <button onclick="redirectToPayment()" class="w-full bg-gradient-to-r from-yellow-400 to-orange-500 text-black font-bold py-3 md:py-4 px-6 rounded-lg hover:from-yellow-500 hover:to-orange-600 transition-all transform hover:scale-105">
-                    🚀 Launch Premium Journey - $18/month
-                </button>
-                
-                <p class="text-xs text-white opacity-70 mt-4">
-                    30-day money-back guarantee • Secure payment by Stripe
-                </p>
+<!-- Premium Modal -->
+<div class="modal" id="premiumModal">
+    <div class="modal-content" style="background: linear-gradient(135deg, #0a0a1a 0%, #1a0a2a 50%, #0a1a3a 100%);">
+        <div class="text-center">
+            <button onclick="closePremiumModal()" class="absolute top-4 right-4 text-white hover:text-gray-300 text-2xl">&times;</button>
+            
+            <div class="text-4xl md:text-6xl mb-4">💎</div>
+            <h2 class="text-2xl md:text-3xl font-bold mb-2 text-white">Unlock Premium Learning</h2>
+            <p class="text-white opacity-80 mb-6 md:mb-8">Access exclusive video content and advanced features</p>
+
+            <!-- Inner box color: light gray for balance -->
+            <div class="bg-gray-800 p-5 rounded-xl shadow-lg mb-6">
+                <h3 class="text-xl font-semibold text-white mb-3">What's Included in Premium:</h3>
+                <ul class="text-gray-300 text-sm space-y-3">
+                    <li>🌟 <strong>4 Weekly Live Sessions</strong>: Participate in live sessions to get real-time feedback and guidance from experts.</li>
+                    <li>👨‍🏫 <strong>Mentorship</strong>: Receive personalized mentorship from our experienced team to guide you through your learning journey.</li>
+                    <li>🎁 <strong>Exclusive Benefits</strong>: Access other premium resources and updates available only to members.</li>
+                </ul>
             </div>
+
+            <button onclick="redirectToPayment()" class="w-full bg-gradient-to-r from-teal-400 to-teal-600 text-white font-bold py-3 md:py-4 px-6 rounded-lg hover:from-teal-500 hover:to-teal-700 transition-all transform hover:scale-105">
+                🚀 Launch Premium Journey - $18/month
+            </button>
+            
+            <p class="text-xs text-white opacity-70 mt-4">
+                30-day money-back guarantee • Secure payment by Stripe
+            </p>
         </div>
     </div>
+</div>
 
     <!-- Achievement Popup -->
     <div class="achievement-popup" id="achievementPopup">
@@ -836,8 +848,8 @@
                 icon: "🚀",
                 duration: "6 min",
                 difficulty: "Beginner",
-                videoUrl: "1.mp4",
-
+                 videoUrl: "https://youtu.be/EiTpNvksK3k",
+        isYouTube: true, 
                 objectives: [
                     "Overview of space exploration history",
                     "Major milestones in human space exploration",
@@ -852,7 +864,7 @@
                 icon: "🚀",
                 duration: "11 min",
                 difficulty: "Beginner",
-                videoUrl: "1.mp4",
+                videoUrl: "2.mp4",
                 objectives: [
                     "Introduction to rocketry and propulsion",
                     "Newton's Laws of Motion",
